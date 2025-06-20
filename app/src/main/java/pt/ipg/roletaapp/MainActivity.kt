@@ -20,6 +20,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.ui.text.style.TextAlign
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,6 +35,7 @@ class MainActivity : ComponentActivity() {
 fun RoletaApp() {
     var nomeInput by remember { mutableStateOf("") }
     val nomes = remember { mutableStateListOf<String>() }
+    var nomeSorteado by remember { mutableStateOf<String?>(null) }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -86,7 +88,7 @@ fun RoletaApp() {
                 fontWeight = FontWeight.Medium,
                 modifier = Modifier.align(Alignment.Start)
             )
-
+            Spacer(modifier = Modifier.height(20.dp))
             // Lista de nomes
             LazyColumn(
                 modifier = Modifier
@@ -103,7 +105,40 @@ fun RoletaApp() {
             }
 
             Spacer(modifier = Modifier.height(20.dp))
+            // Botão de sortear
+            Button(
+                onClick = {
+                    if (nomes.isNotEmpty()) {
+                        nomeSorteado = nomes.random()
+                    }
+                },
+                enabled = nomes.isNotEmpty(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Text("Sortear", fontSize = 18.sp)
+            }
 
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Resultado
+            nomeSorteado?.let {
+                Text(
+                    text = "Nome sorteado:",
+                    fontSize = 18.sp,
+                    color = Color.Gray
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = it,
+                    fontSize = 28.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF009688),
+                    textAlign = TextAlign.Center
+                )
+            }
         }
     }
 }
