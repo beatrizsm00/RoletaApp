@@ -18,6 +18,8 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -78,9 +80,29 @@ fun RoletaApp() {
             }
 
             Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = "Nomes adicionados:",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier.align(Alignment.Start)
+            )
 
+            // Lista de nomes
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 150.dp)
+            ) {
+                items(nomes) { nome ->
+                    Text(
+                        text = "• $nome",
+                        fontSize = 16.sp,
+                        modifier = Modifier.padding(vertical = 2.dp)
+                    )
+                }
+            }
 
-
+            Spacer(modifier = Modifier.height(20.dp))
 
         }
     }
