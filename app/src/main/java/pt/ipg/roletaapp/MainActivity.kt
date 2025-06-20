@@ -21,6 +21,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -82,28 +84,50 @@ fun RoletaApp() {
             }
 
             Spacer(modifier = Modifier.height(16.dp))
+
             Text(
                 text = "Nomes adicionados:",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Medium,
-                modifier = Modifier.align(Alignment.Start)
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Start
             )
+
             Spacer(modifier = Modifier.height(20.dp))
+
             // Lista de nomes
             LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(max = 150.dp)
+                    .heightIn(max = 180.dp)
             ) {
                 items(nomes) { nome ->
-                    Text(
-                        text = "• $nome",
-                        fontSize = 16.sp,
-                        modifier = Modifier.padding(vertical = 2.dp)
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp)
+                    ) {
+                        Text(
+                            text = "• $nome",
+                            fontSize = 16.sp,
+                            modifier = Modifier.padding(vertical = 2.dp)
+                        )
+                        Text(
+                            text = nome,
+                            fontSize = 16.sp,
+                            modifier = Modifier.weight(1f)
+                        )
+                        IconButton(onClick = { nomes.remove(nome) }) {
+                            Icon(
+                                imageVector = Icons.Default.Delete,
+                                contentDescription = "Remover",
+                                tint = Color.Black
+                            )
+                        }
+                    }
                 }
             }
-
             Spacer(modifier = Modifier.height(20.dp))
             // Botão de sortear
             Button(
