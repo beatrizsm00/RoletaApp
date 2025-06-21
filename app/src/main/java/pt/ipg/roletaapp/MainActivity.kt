@@ -28,6 +28,12 @@ import kotlin.math.sin
 import androidx.compose.foundation.Canvas
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.ui.graphics.graphicsLayer
+import kotlinx.coroutines.launch
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,6 +50,8 @@ fun RoletaApp() {
     val nomes = remember { mutableStateListOf<String>() }
     var nomeSorteado by remember { mutableStateOf<String?>(null) }
 
+    val rotation = remember { Animatable(0f) }
+    val coroutineScope = rememberCoroutineScope()
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
@@ -138,14 +146,24 @@ fun RoletaApp() {
             Button(
                 onClick = {
                     if (nomes.isNotEmpty()) {
-                        nomeSorteado = nomes.random()
+                        val selectedIndex = nomes.indices.random()
+                        val fullRotations = 5 * 360f
+                        val anglePerSector = 360f / nomes.size
+                        val targetAngle = fullRotations + (nomes.size - selectedIndex) * anglePerSector + (anglePerSector / 2)
+
+                        coroutineScope.launch {
+                            rotation.animateTo(
+                                targetAngle,
+                                animationSpec = tween(durationMillis = 3000, easing = FastOutSlowInEasing)
+                            )
+                            nomeSorteado = nomes[selectedIndex]
+                        }
                     }
                 },
                 enabled = nomes.isNotEmpty(),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(50.dp),
-                shape = RoundedCornerShape(12.dp)
+                    .height(50.dp)
             ) {
                 Text("Sortear", fontSize = 18.sp)
             }
@@ -153,6 +171,7 @@ fun RoletaApp() {
 
             RoletaCanvas(
                 nomes = nomes,
+                rotationAngle = rotation.value,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(200.dp)
@@ -180,8 +199,12 @@ fun RoletaApp() {
     }
 }
 @Composable
-fun RoletaCanvas(nomes: List<String>, modifier: Modifier = Modifier) {
-    Box(modifier = modifier) {
+fun RoletaCanvas(nomes: List<String>, rotationAngle: Float, modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier.graphicsLayer {
+            rotationZ = rotationAngle
+        }
+    ) {
         Canvas(modifier = Modifier.matchParentSize()) {
             if (nomes.isEmpty()) return@Canvas
 
@@ -201,6 +224,16 @@ fun RoletaCanvas(nomes: List<String>, modifier: Modifier = Modifier) {
                     useCenter = true,
                     topLeft = Offset(center.x - radius, center.y - radius),
                     size = androidx.compose.ui.geometry.Size(radius * 2, radius * 2)
+                )
+                val angleRad = Math.toRadians(startAngle.toDouble())
+                val endX = center.x + radius * cos(angleRad).toFloat()
+                val endY = center.y + radius * sin(angleRad).toFloat()
+
+                drawLine(
+                    color = Color.White,
+                    start = center,
+                    end = Offset(endX, endY),
+                    strokeWidth = 3f
                 )
             }
         }
@@ -232,7 +265,7 @@ fun RoletaCanvas(nomes: List<String>, modifier: Modifier = Modifier) {
                                     )
                                 },
                             fontSize = 14.sp,
-                            color = Color.Black
+                            color = Color.White
                         )
                     }
                 }
