@@ -23,6 +23,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import kotlin.math.cos
+import kotlin.math.sin
+import androidx.compose.foundation.Canvas
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.unit.IntOffset
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -144,6 +149,14 @@ fun RoletaApp() {
             ) {
                 Text("Sortear", fontSize = 18.sp)
             }
+            Spacer(modifier = Modifier.height(24.dp))
+
+            RoletaCanvas(
+                nomes = nomes,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp)
+            )
 
             Spacer(modifier = Modifier.height(24.dp))
 
@@ -162,6 +175,67 @@ fun RoletaApp() {
                     color = Color(0xFF009688),
                     textAlign = TextAlign.Center
                 )
+            }
+        }
+    }
+}
+@Composable
+fun RoletaCanvas(nomes: List<String>, modifier: Modifier = Modifier) {
+    Box(modifier = modifier) {
+        Canvas(modifier = Modifier.matchParentSize()) {
+            if (nomes.isEmpty()) return@Canvas
+
+            val total = nomes.size
+            val sweepAngle = 360f / total
+            val radius = size.minDimension / 2f
+            val center = Offset(size.width / 2f, size.height / 2f)
+
+            nomes.forEachIndexed { index, _ ->
+                val startAngle = index * sweepAngle
+                val color = Color(0xFF6750A4)
+
+                drawArc(
+                    color = color,
+                    startAngle = startAngle,
+                    sweepAngle = sweepAngle,
+                    useCenter = true,
+                    topLeft = Offset(center.x - radius, center.y - radius),
+                    size = androidx.compose.ui.geometry.Size(radius * 2, radius * 2)
+                )
+            }
+        }
+
+        Box(modifier = Modifier.matchParentSize()) {
+            if (nomes.isNotEmpty()) {
+                val total = nomes.size
+                val sweepAngle = 360f / total
+                val angleOffset = -90f
+
+                nomes.forEachIndexed { index, nome ->
+                    val angle = Math.toRadians((index * sweepAngle + sweepAngle / 2 + angleOffset).toDouble())
+                    val radiusFraction = 0.45f
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(8.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = nome,
+                            modifier = Modifier
+                                .offset {
+                                    val r = 130.dp.toPx() * radiusFraction
+                                    IntOffset(
+                                        x = (r * cos(angle)).toInt(),
+                                        y = (r * sin(angle)).toInt()
+                                    )
+                                },
+                            fontSize = 14.sp,
+                            color = Color.Black
+                        )
+                    }
+                }
             }
         }
     }
