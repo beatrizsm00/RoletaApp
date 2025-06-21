@@ -33,6 +33,7 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.ui.graphics.graphicsLayer
 import kotlinx.coroutines.launch
+import androidx.compose.ui.graphics.Path
 
 
 class MainActivity : ComponentActivity() {
@@ -149,7 +150,7 @@ fun RoletaApp() {
                         val selectedIndex = nomes.indices.random()
                         val fullRotations = 5 * 360f
                         val anglePerSector = 360f / nomes.size
-                        val targetAngle = fullRotations + (nomes.size - selectedIndex) * anglePerSector + (anglePerSector / 2)
+                        val targetAngle = fullRotations - (selectedIndex * anglePerSector) - (anglePerSector / 2)
 
                         coroutineScope.launch {
                             rotation.animateTo(
@@ -169,13 +170,40 @@ fun RoletaApp() {
             }
             Spacer(modifier = Modifier.height(24.dp))
 
-            RoletaCanvas(
-                nomes = nomes,
-                rotationAngle = rotation.value,
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(200.dp)
-            )
+                    .height(270.dp),
+                contentAlignment = Alignment.TopCenter
+            ) {
+                // Roleta
+                RoletaCanvas(
+                    nomes = nomes,
+                    rotationAngle = rotation.value,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(270.dp)
+                )
+
+                // Ponteiro (fixo, visível só se houver nomes)
+                if (nomes.isNotEmpty()) {
+                    Canvas(
+                        modifier = Modifier
+                            .size(30.dp)
+                            .offset(y = 6.dp)
+                    ) {
+                        val path =Path().apply {
+                            moveTo(size.width / 2f, size.height)
+                            lineTo(0f, 0f)
+                            lineTo(size.width, 0f)
+                            close()
+                        }
+
+                        drawPath(path, color = Color.Red)
+                    }
+                }
+            }
+
 
             Spacer(modifier = Modifier.height(24.dp))
 
